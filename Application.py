@@ -17,6 +17,7 @@ class Application:
         self.female_PGA_yardage = female_PGA_yardage
         self.min_factor = min_factor
         self.max_factor = max_factor
+        self.dispersion_range = dispersion_ranges
 
     def run(self):
         data = []
@@ -30,9 +31,14 @@ class Application:
             golfer_data = {'ID': i, 'Age': age, 'Gender': gender, 'HCP': hcp}
 
             for club in clubs:
-                golfer_data[club] = golfer.calculate_distance(club, self.male_PGA_yardage, self.female_PGA_yardage,
+                distance = golfer.calculate_distance(club, self.male_PGA_yardage, self.female_PGA_yardage,
                                                               self.min_factor, self.max_factor)
+                dispersion = golfer.calculate_dispersion(club, dispersion_ranges)
+                golfer_data[club] = distance
+                golfer_data[f"{club}_Dispersion"] = dispersion
             data.append(golfer_data)
+
+
 
         df = pd.DataFrame(data)
         for col in self.column_order:
@@ -46,7 +52,7 @@ class Application:
 
 if __name__ == '__main__':
     #Modify Age Randomization
-    age = lambda: np.random.randint(18, 80)
+    age = lambda: np.random.randint(18, 60)
 
     #Modify HCP Randomization
     hcp = lambda: round(np.random.uniform(0, 36), 1)
@@ -58,8 +64,12 @@ if __name__ == '__main__':
     gender = lambda: "Male" if np.random.random() < 0.65 else "Female"
 
     #Order of the columns in the data.csv file
-    column_order = ['ID', 'Age', 'Gender', 'HCP', 'Driver', '3-Wood', '5-Wood', '3-Hybrid', '4-Hybrid', '5-Hybrid',
-                    '4-Iron', '5-Iron', '6-Iron', '7-Iron', '8-Iron', '9-Iron', 'PW', 'GW', 'SW', 'LW']
+    column_order = ['ID', 'Age', 'Gender', 'HCP', 'Driver', 'Driver_Dispersion', '3-Wood', '3-Wood_Dispersion',
+                    '5-Wood', '5-Wood_Dispersion', '3-Hybrid', '3-Hybrid_Dispersion', '4-Hybrid', '4-Hybrid_Dispersion',
+                    '5-Hybrid', '5-Hybrid_Dispersion', '4-Iron', '4-Iron_Dispersion', '5-Iron', '5-Iron_Dispersion',
+                    '6-Iron', '6-Iron_Dispersion', '7-Iron', '7-Iron_Dispersion', '8-Iron', '8-Iron_Dispersion',
+                    '9-Iron', '9-Iron_Dispersion', 'PW', 'PW_Dispersion', 'GW', 'GW_Dispersion',
+                    'SW', 'SW_Dispersion', 'LW', 'LW_Dispersion']
 
     #Number of generated entries
     data_points = 500
@@ -127,6 +137,25 @@ if __name__ == '__main__':
                           'SW': 97,
                           'LW': 90,
                           }
+    #Dispersion range for each club.
+    dispersion_ranges = {
+        'Driver': (20, 40),
+        '3-Wood': (18, 35),
+        '5-Wood': (15, 30),
+        '3-Hybrid': (12, 28),
+        '4-Hybrid': (12, 25),
+        '5-Hybrid': (10, 22),
+        '4-Iron': (12, 25),
+        '5-Iron': (10, 22),
+        '6-Iron': (10, 20),
+        '7-Iron': (8, 18),
+        '8-Iron': (7, 15),
+        '9-Iron': (5, 12),
+        'PW': (4, 10),
+        'GW': (4, 10),
+        'SW': (5, 10),
+        'LW': (5, 12),
+    }
 
     App = Application(age, hcp, std, gender, data_points, column_order, club_probabilities, male_PGA_yardage,
                       female_PGA_yardage, min_factor, max_factor)

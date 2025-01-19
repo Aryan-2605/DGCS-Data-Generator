@@ -18,6 +18,15 @@ class Operations:
                 bag.append(club)
         return bag
 
+    def calculate_dispersion(self, club, dispersion_values):
+        base_dispersion = np.random.uniform(*dispersion_values[club])
+        if self.hcp <= 10:
+            return round(base_dispersion * 0.7, 1)
+        elif self.hcp <= 20:
+            return round(base_dispersion * 0.9, 1)
+        else:
+            return round(base_dispersion, 1)
+
     def calculate_distance(self, club, male_PGA_yardage, female_PGA_yardage, min_factor, max_factor):
         # Base mean factor from HCP
         mean_factor = min_factor + (max_factor - min_factor) * (36 - min(self.hcp, 36)) / 36
